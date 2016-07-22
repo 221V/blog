@@ -4,7 +4,7 @@ defmodule Blog.Comment do
   schema "comments" do
     field :name, :string
     field :content, :string
-    belongs_to :post, Blog.Post, foreign_key: :post_id
+    belongs_to :post, Blog.Post
 
     timestamps()
   end

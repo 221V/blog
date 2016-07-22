@@ -1,12 +1,11 @@
 defmodule Blog.Post do
   use Blog.Web, :model
-  import Ecto.Query
 
   schema "posts" do
     field :title, :string
     field :body, :string
 
-	has_many :comments, Blog.Comment
+	has_many :comments, Blog.Comment, on_delete: :delete_all
 	
     timestamps()
   end
