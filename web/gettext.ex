@@ -21,4 +21,8 @@ defmodule Blog.Gettext do
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
   use Gettext, otp_app: :blog
+  
+  def supported_locales do
+    Gettext.known_locales(Blog.Gettext)
+  end
 end
