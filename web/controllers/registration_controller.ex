@@ -13,7 +13,6 @@ defmodule Blog.RegistrationController do
       {:ok, changeset} ->
         conn
         |> put_session(:uid, changeset.id)
-        |> put_session(:type, 1)
         |> put_flash(:info, "Your account was creared")
         |> redirect(to: "/")
       {:error, changeset} ->
