@@ -52,6 +52,8 @@ defmodule Blog.Web do
       import Blog.Router.Helpers
       import Blog.ErrorHelpers
       import Blog.Gettext
+      
+      import Blog.Session, only: [current_user: 1]
     end
   end
 

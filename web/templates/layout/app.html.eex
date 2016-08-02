@@ -1,3 +1,11 @@
+
+<% sess_user = current_user(@conn) %>
+<% 
+#IO.inspect sess_user.id
+#IO.inspect sess_user.email
+#IO.inspect sess_user.type
+%>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -22,11 +30,22 @@
         <span class="logo"></span>
       </header>
 
-      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
-
       <main role="main">
-        <%= render @view_module, @view_template, assigns %>
+        
+        
+        <%= if logged_in?(sess_user) do %>
+          <span><%= sess_user.email %></span>
+          <span><%= link "Logout", to: session_path(@conn, :delete), method: :delete %></span>
+        <% else %>
+          <span><%= link "Login",    to: "/login" %></span>
+          <span><%= link "Register", to: registration_path(@conn, :new) %></span>
+        <% end %>
+        
+        <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+        <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+        
+        <%= render @view_module, @view_template, Map.put(assigns, :sess_user, sess_user) %>
+        
       </main>
 
     </div> <!-- /container -->
