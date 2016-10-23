@@ -1,13 +1,36 @@
 defmodule Blog.Session do
-  #use Blog.Web, :model
+  use Blog.Web, :model
   alias Blog.User
 
   def login(params, repo) do
-    user = repo.get_by(User, email: String.downcase(params["email"]))
+    #user = if params["email"] =~ ~r/@/ do
+      repo.get_by(User, email: String.downcase(params["email"]))
+    #else
+    #  get_user_by_nickname(repo, String.downcase(params["email"]))
+    #end
+    
     case authenticate(user, params["password"]) do
       true -> {:ok, user}
       _    -> :error
     end
+  end
+  
+  defp get_user_by_nickname(repo, nickname) do
+    #query = from u in "users",
+    #      where: fragment("LOWER(\"nickname\")") == ^nickname,
+    #      select: fragment("\"id\", \"nickname\", \"email\", \"crypted_password\", \"type\", \"inserted_at\", \"updated_at\"")
+    #query |> first([]) |> repo.one
+    
+    #query = from u in "users",
+    #      where: fragment("lower(?) = ?", u."nickname", ^nickname),
+    #      select: fragment("u0.\"id\", u0.\"nickname\", u0.\"email\", u0.\"crypted_password\", u0.\"type\", u0.\"inserted_at\", u0.\"updated_at\"")
+    #rez = repo.all(query)
+    #IO.inspect rez
+    
+    #nickname = String.replace(nickname, ~r/[^\w-+\*]/, "")
+    #rez = Ecto.Adapters.SQL.query(repo, "SELECT u0.\"id\", u0.\"nickname\", u0.\"email\", u0.\"crypted_password\", u0.\"type\", u0.\"inserted_at\", u0.\"updated_at\" FROM \"users\" AS u0 WHERE (LOWER(u0.\"nickname\") = '$1') LIMIT 1", [nickname])
+    #IO.inspect rez
+    
   end
 
   defp authenticate(user, password) do

@@ -2,15 +2,20 @@ defmodule Blog.User do
   use Blog.Web, :model
 
   schema "users" do
+    field :nickname, :string
     field :email, :string
     field :crypted_password, :string
     field :password, :string, virtual: true
+    field :type, :integer
+    
+    has_many :posts, Blog.Post, on_delete: :delete_all
+    has_many :comments, Blog.Comment, on_delete: :delete_all
 
     timestamps()
-    field :type, :integer
+    
   end
   
-  @required_fields ~w(email password)
+  @required_fields ~w(nickname email password)
   @optional_fields ~w()
 
   @doc """
@@ -23,8 +28,10 @@ defmodule Blog.User do
     model
     |> cast(params, @required_fields, @optional_fields)
     |> unique_constraint(:email)
+    |> unique_constraint(:nickname)
     |> validate_format(:email, ~r/@/)
-    |> validate_length(:password, min: 5)
+    |> validate_format(:nickname, ~r/^([\w-+\*])+$/i)
+    |> validate_length(:password, min: 8)
   end
 
 end

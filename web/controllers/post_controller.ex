@@ -36,6 +36,7 @@ defmodule Blog.PostController do
     if Blog.Session.logged_in?(sess_user) do
       if sess_user.type == 9 do
         
+        post_params = Map.put(post_params, "user_id", sess_user.id)
         changeset = Post.changeset(%Post{}, post_params)
 
         if changeset.valid? do
@@ -62,7 +63,26 @@ defmodule Blog.PostController do
     sess_user = Blog.Session.current_user(conn)
     sess_user_logged = Blog.Session.logged_in?(sess_user)
     
-    post = Repo.get(Post, id) |> Repo.preload([:comments])
+    #post = Repo.get(Post, id) |> Repo.preload([:comment])
+    post = Repo.get(Post, id)
+    
+    preloaded = Blog.Post.preload_comments(String.to_integer(id),10,0)
+    post = if preloaded != nil do
+      {preload_user_info, preloaded_comments} = preloaded
+      Map.put(Map.put(post, "preload_user_info", preload_user_info), "preloaded_comments", preloaded_comments)
+    else
+      post
+    end
+    
+    #post = Map.put(post, "testz", "777")
+    #IO.inspect Map.get(post, "testz")
+    
+    #IO.inspect Map.get(post, "preload_user_info")
+    #IO.inspect Map.get(post, "preloaded_comments")
+    
+    #IO.inspect Blog.Post.preload_comments(777,10,0)
+    #IO.inspect Blog.Post.preload_comments(String.to_integer(id),10,0)
+    
     changeset = Comment.changeset(%Comment{})
     #IO.inspect changeset
     render(conn, "show.html", post: post, changeset: changeset, sess_user: sess_user, sess_user_logged: sess_user_logged)
@@ -133,11 +153,15 @@ defmodule Blog.PostController do
     sess_user = Blog.Session.current_user(conn)
     sess_user_logged = Blog.Session.logged_in?(sess_user)
     if sess_user_logged do
+      #IO.inspect comment_params
+      comment_params = Map.put(comment_params, "user_id", sess_user.id)
+      comment_params = Map.put(comment_params, "post_id", String.to_integer(post_id))
     
-    IO.inspect comment_params
-    
-      changeset = Comment.changeset(%Comment{}, Map.put(Map.put(comment_params, "name", sess_user.email), "post_id", post_id))
-      post = Repo.get(Post, post_id) |> Repo.preload([:comments])
+      changeset = Comment.changeset(%Comment{}, comment_params)
+      #changeset = Ecto.Changeset.change(changeset,"user_id": sess_user.id)
+      #changeset = Ecto.Changeset.change(changeset,"post_id": String.to_integer(post_id))
+      IO.inspect changeset
+      post = Repo.get(Post, post_id) |> Repo.preload([:comment])
 
       if changeset.valid? do
         Repo.insert(changeset)

@@ -3,12 +3,14 @@
   <%= @post.body %>
 </div>
 
+<%= render "comments.html", post: @post %>
+
 <%= if @sess_user_logged do %>
 <%= render "comment_form.html", post: @post, changeset: @changeset, sess_user: @sess_user,
                                 #action: post_post_path(@conn, :add_comment, @post)
                                 action: post_path(@conn, :add_comment, @post) %>
+<% else %>
+<p>You must be logged for add comments!</p>
 <% end %>
-
-<%= render "comments.html", post: @post %>
 
 <%= link "Back", to: post_path(@conn, :index) %>

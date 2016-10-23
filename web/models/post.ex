@@ -5,12 +5,13 @@ defmodule Blog.Post do
     field :title, :string
     field :body, :string
 
-	has_many :comments, Blog.Comment, on_delete: :delete_all
+	has_many :comment, Blog.Comment, on_delete: :delete_all
+    belongs_to :user, Blog.User
 	
     timestamps()
   end
   
-  @required_fields ~w(title body)
+  @required_fields ~w(title body user_id)
   @optional_fields ~w()
 
   @doc """
@@ -27,8 +28,33 @@ defmodule Blog.Post do
   def count_comments(query) do
     from p in query,
       group_by: p.id,
-      left_join: c in assoc(p, :comments),
+      left_join: c in assoc(p, :comment),
       select: {p, count(c.id)}
+  end
+  
+  def preload_comments(post_id, limit, offset \\ 0) do
+    query = from c in "comments",
+            where: c.post_id == ^post_id,
+            limit: ^limit, offset: ^offset,
+            select: [c.user_id, c.content]
+    comments = Blog.Repo.all(query)
+    #[[1, "hhhhjjkll;"], [1, "hjh"], [1, "ddff"], [1, "ghh"]]
+    case comments do
+      [] -> nil
+      _ ->
+        user_ids = for comment <- comments do
+          [user_id | _] = comment
+          user_id
+        end
+        {preload_comments_users(Enum.uniq(user_ids)), comments}
+    end
+  end
+  
+  defp preload_comments_users(user_ids) do
+    query = from u in "users",
+            where: u.id in ^user_ids,
+            select: [u.id, u.nickname]
+    Blog.Repo.all(query)
   end
   
 end

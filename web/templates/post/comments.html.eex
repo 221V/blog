@@ -7,11 +7,23 @@
     </tr>
   </thead>
   <tbody>
-<%= for comment <- @post.comments do %>
-    <tr>
-      <td><%= comment.name %></td>
-      <td><%= comment.content %></td>
-    </tr>
+
+<%
+preload_user_info = Map.get(@post, "preload_user_info")
+preloaded_comments = Map.get(@post, "preloaded_comments")
+%>
+<%= if is_list(preload_user_info) and is_list(preloaded_comments) do %>
+  <%= for comment <- preloaded_comments do %>
+        <tr>
+          <td><%= Blog.PostView.show_nickname(hd(comment), preload_user_info) %></td>
+          <%
+          #<a href="/user/<user_id>" target="_blank"><user_nickname></a>
+          %>
+          <td><%= hd(tl(comment)) %></td>
+        </tr>
+    <% end %>
+<% else %>
+<tr><td>There are no comments yet...</td></tr>
 <% end %>
   </tbody>
 </table>

@@ -2,14 +2,14 @@ defmodule Blog.Comment do
   use Blog.Web, :model
 
   schema "comments" do
-    field :name, :string
     field :content, :string
+    belongs_to :user, Blog.User
     belongs_to :post, Blog.Post
 
     timestamps()
   end
 
-  @required_fields ~w(name content post_id)
+  @required_fields ~w(content user_id post_id)
   @optional_fields ~w()
   
   @doc """

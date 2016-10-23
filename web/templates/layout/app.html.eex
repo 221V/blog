@@ -1,6 +1,6 @@
 
 <% sess_user = current_user(@conn) %>
-<% 
+<%
 #IO.inspect sess_user.id
 #IO.inspect sess_user.email
 #IO.inspect sess_user.type
@@ -14,6 +14,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 
     <title>Blog Phoenix!</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
@@ -34,6 +36,7 @@
         
         
         <%= if logged_in?(sess_user) do %>
+          <span><%= sess_user.nickname %></span>
           <span><%= sess_user.email %></span>
           <span><%= link "Logout", to: session_path(@conn, :delete), method: :delete %></span>
         <% else %>
