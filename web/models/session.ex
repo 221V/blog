@@ -3,11 +3,11 @@ defmodule Blog.Session do
   alias Blog.User
 
   def login(params, repo) do
-    #user = if params["email"] =~ ~r/@/ do
+    user = if params["email"] =~ ~r/@/ do
       repo.get_by(User, email: String.downcase(params["email"]))
-    #else
-    #  get_user_by_nickname(repo, String.downcase(params["email"]))
-    #end
+    else
+      get_user_by_nickname(repo, String.downcase(params["email"]))
+    end
     
     case authenticate(user, params["password"]) do
       true -> {:ok, user}
@@ -27,9 +27,17 @@ defmodule Blog.Session do
     #rez = repo.all(query)
     #IO.inspect rez
     
-    #nickname = String.replace(nickname, ~r/[^\w-+\*]/, "")
-    #rez = Ecto.Adapters.SQL.query(repo, "SELECT u0.\"id\", u0.\"nickname\", u0.\"email\", u0.\"crypted_password\", u0.\"type\", u0.\"inserted_at\", u0.\"updated_at\" FROM \"users\" AS u0 WHERE (LOWER(u0.\"nickname\") = '$1') LIMIT 1", [nickname])
-    #IO.inspect rez
+    {:ok, row} = Ecto.Adapters.SQL.query(repo, "SELECT u0.\"id\", u0.\"nickname\", u0.\"email\", u0.\"crypted_password\", u0.\"type\", u0.\"inserted_at\", u0.\"updated_at\" FROM \"users\" AS u0 WHERE (LOWER(u0.\"nickname\") = $1) LIMIT 1", [String.replace(nickname, ~r/[^\w-+\*]/, "")])
+    
+    user = case row.rows do
+      [] -> nil
+      _  ->
+         [user_id | tail] = hd(row.rows)
+         [nickname | tail] = tail
+         [email | tail] = tail
+         [crypted_password | tail] = tail
+         Map.put(Map.put(Map.put(Map.put(Map.new(), :id, user_id), :nickname, nickname), :email, email), :crypted_password, crypted_password)
+    end
     
   end
 
